@@ -7,8 +7,13 @@ from api import router as api_router
 
 
 app = FastAPI(title="FastAPI App")
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix=settings.api)
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run(
+        app="main:app",
+        host=settings.run.host,
+        port=settings.run.port,
+        reload=True,
+    )

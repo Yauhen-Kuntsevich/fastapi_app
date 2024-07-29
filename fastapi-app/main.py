@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from core.models.db_helper import db_helper
+
 import uvicorn
 from fastapi import FastAPI
 
@@ -6,8 +9,16 @@ from core.config import settings
 from api import router as api_router
 
 
-app = FastAPI(title="FastAPI App")
-app.include_router(api_router, prefix=settings.api)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    yield
+    # shutdown
+    await db_helper.dispose()
+
+
+main_app = FastAPI(title="FastAPI App", lifespan=lifespan)
+main_app.include_router(api_router, prefix=settings.api)
 
 
 if __name__ == "__main__":
@@ -17,3 +28,4 @@ if __name__ == "__main__":
         port=settings.run.port,
         reload=True,
     )
+
